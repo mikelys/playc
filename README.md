@@ -6,7 +6,7 @@ A small C playground, starting with a console program that prints `Hello, Mike!`
 
 - `hello-world/hello.c` — the program source.
 - `hello-world/Makefile` — build, run, and clean targets.
-- `hello-world/README.txt` — notes for the original Windows setup.
+- `hello-world/README.txt` — the plain-text setup guide.
 
 ## Build and run
 
