@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>My first CI/CD pipeline</title>
+    <link rel="stylesheet" href="./style.css">
+  </head>
+  <body>
+    <main>
+      <p class="eyebrow">GITHUB ACTIONS LAB</p>
+      <h1 id="headline">My first CI/CD pipeline</h1>
+      <p>A small change. An automated test. A live website.</p>
+      <ol class="pipeline" aria-label="Deployment stages">
+        <li>Commit</li><li>Test</li><li>Build</li><li>Deploy</li>
+      </ol>
+      <form id="greeting-form">
+        <label for="name">Try the tested greeting function</label>
+        <div class="controls">
+          <input id="name" name="name" placeholder="Your name" maxlength="80">
+          <button type="submit">Say hello</button>
+        </div>
+      </form>
+      <p id="greeting" role="status" aria-live="polite"></p>
+      <footer id="build-info">Local preview</footer>
+    </main>
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>

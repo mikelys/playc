@@ -5,6 +5,12 @@
 
 A small C playground, starting with a console program that prints `Hello, Mike!`.
 
+## Learn CI/CD with a website
+
+Start with [the hands-on GitHub Actions tutorial](cicd-demo/README.md). It includes a small JavaScript website, automated tests, a build, and a separate workflow that deploys to GitHub Pages after checks pass on `main`.
+
+The website demo lives in `cicd-demo/`; its workflow is `.github/workflows/learn-cicd.yml`. The C program and release workflow below remain available as another example.
+
 ## Project structure
 
 - `hello-world/hello.c` — the program source.
