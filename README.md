@@ -60,3 +60,20 @@ $env:Path = "$((Resolve-Path '..\.tools\w64devkit\bin').Path);$env:Path"
 ```
 
 The `.tools/` directory, compiled `hello.exe`, and object files are excluded from Git. Install the toolchain locally after cloning.
+
+## CI/CD
+
+The [GitHub Actions pipeline](https://github.com/mikelys/playc/actions/workflows/ci-cd.yml) runs on branch pushes, pull requests, version tags (`v*`), and manual runs from the Actions tab.
+
+Each run builds the program with GCC on Windows and Linux, treats compiler warnings as errors, and checks that the program exits successfully and prints `Hello, Mike!`. Successful builds provide `playc-windows-x64.zip` and `playc-linux-x64.tar.gz` as workflow artifacts, retained for 14 days. Each package contains the executable and the plain-text setup guide.
+
+To publish a GitHub Release, tag the commit you want to release and push the tag. For example, from an up-to-date `main` branch:
+
+```powershell
+git tag v0.1.0
+git push origin v0.1.0
+```
+
+After both platform checks pass, the pipeline publishes the packages on the [Releases page](https://github.com/mikelys/playc/releases) with generated release notes. Choose a new version tag for each release. Re-running a tag workflow replaces that release's package files.
+
+The pipeline uses GitHub-hosted runners and the built-in `GITHUB_TOKEN`; no custom secrets are required. Only the release job has permission to write repository contents.

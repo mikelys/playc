@@ -1,0 +1,101 @@
+name: CI/CD
+
+on:
+  push:
+    branches: ['**']
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build and test (${{ matrix.platform }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-24.04
+            platform: linux-x64
+            binary: hello
+          - os: windows-2025
+            platform: windows-x64
+            binary: hello.exe
+    defaults:
+      run:
+        working-directory: hello-world
+        shell: bash
+    env:
+      BINARY: ${{ matrix.binary }}
+      PLATFORM: ${{ matrix.platform }}
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Build with warnings treated as errors
+        run: |
+          gcc --version
+          gcc -std=c17 -Wall -Wextra -Wpedantic -Werror -O2 -static hello.c -o "$BINARY"
+
+      - name: Verify program output
+        run: |
+          actual=$("./$BINARY")
+          actual="${actual%$'\r'}"
+          if [[ "$actual" != 'Hello, Mike!' ]]; then
+            printf 'Unexpected output: %s\n' "$actual" >&2
+            exit 1
+          fi
+
+      - name: Package Linux executable and setup guide
+        if: runner.os == 'Linux'
+        run: tar -czf "playc-$PLATFORM.tar.gz" "$BINARY" README.txt
+
+      - name: Package Windows executable and setup guide
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: Compress-Archive -Path $env:BINARY, README.txt -DestinationPath "playc-$env:PLATFORM.zip"
+
+      - name: Upload package
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: playc-${{ matrix.platform }}
+          path: |
+            hello-world/playc-*.tar.gz
+            hello-world/playc-*.zip
+          if-no-files-found: error
+          retention-days: 14
+
+  release:
+    name: Publish tagged release
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - name: Download tested packages
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        with:
+          pattern: playc-*
+          merge-multiple: true
+          path: packages
+
+      - name: Publish packages to GitHub Releases
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          if gh release view "$RELEASE_TAG" > /dev/null 2>&1; then
+            gh release upload "$RELEASE_TAG" packages/* --clobber
+          else
+            gh release create "$RELEASE_TAG" packages/* --verify-tag --generate-notes --title "$RELEASE_TAG"
+          fi
