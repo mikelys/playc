@@ -1,5 +1,8 @@
 # playc
 
+[![CI status](https://github.com/mikelys/playc/actions/workflows/ci-cd.yml/badge.svg?branch=main)](https://github.com/mikelys/playc/actions/workflows/ci-cd.yml?query=branch%3Amain)
+[Latest release](https://github.com/mikelys/playc/releases/latest)
+
 A small C playground, starting with a console program that prints `Hello, Mike!`.
 
 ## Project structure
